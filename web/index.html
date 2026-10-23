@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Docs Assistant</title>
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --ink:#18202c; --muted:#6a7383; --line:#e3e6eb; --accent:#4f46e5; --accent-soft:#eef0ff; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:14px/1.55 -apple-system,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--ink); height:100vh; display:flex; flex-direction:column; }
+  header { padding:14px 24px; background:var(--card); border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; }
+  header b { font-size:15px; } header span { color:var(--muted); font-size:12px; }
+  .layout { flex:1; display:grid; grid-template-columns:260px 1fr 340px; min-height:0; }
+  aside, .sources { background:var(--card); border-right:1px solid var(--line); padding:18px; overflow:auto; }
+  .sources { border-right:0; border-left:1px solid var(--line); }
+  h3 { font-size:12px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); margin:0 0 10px; }
+  .doc { display:flex; justify-content:space-between; gap:8px; padding:8px 0; border-bottom:1px solid var(--line); font-size:13px; }
+  .doc small { color:var(--muted); white-space:nowrap; }
+  .doc button { border:0; background:none; color:var(--muted); cursor:pointer; padding:0 2px; }
+  .upload { margin-top:14px; display:block; border:1px dashed var(--line); border-radius:8px; padding:14px; text-align:center; color:var(--muted); cursor:pointer; }
+  .upload:hover { border-color:var(--accent); color:var(--accent); }
+  .chat { display:flex; flex-direction:column; min-height:0; }
+  .messages { flex:1; overflow:auto; padding:24px; }
+  .msg { max-width:720px; margin:0 auto 16px; }
+  .msg.user .bubble { background:var(--accent); color:#fff; margin-left:auto; width:fit-content; max-width:80%; }
+  .bubble { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px 14px; white-space:pre-wrap; }
+  .msg.user .bubble { border:0; }
+  .cite { display:inline-block; background:var(--accent-soft); color:var(--accent); border-radius:4px; padding:0 5px; font-size:11px; font-weight:600; cursor:pointer; margin:0 1px; }
+  .meta { font-size:11px; color:var(--muted); margin-top:4px; }
+  .notfound .bubble { background:#fff8eb; border-color:#f5d9a8; }
+  form { display:flex; gap:10px; padding:16px 24px; border-top:1px solid var(--line); background:var(--card); }
+  input[type=text] { flex:1; border:1px solid var(--line); border-radius:8px; padding:11px 12px; font:inherit; }
+  form button { border:0; background:var(--accent); color:#fff; border-radius:8px; padding:0 18px; font:inherit; cursor:pointer; }
+  .src { border:1px solid var(--line); border-radius:8px; padding:10px 12px; margin-bottom:10px; font-size:13px; }
+  .src.active { border-color:var(--accent); box-shadow:0 0 0 2px var(--accent-soft); }
+  .src b { display:block; font-size:12px; margin-bottom:4px; }
+  .src p { margin:0; color:#3a4352; }
+  .examples button { display:block; width:100%; text-align:left; background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:8px 10px; margin-bottom:8px; cursor:pointer; font:inherit; font-size:13px; }
+  .empty { color:var(--muted); font-size:13px; }
+  @media (max-width: 960px) { .layout { grid-template-columns:1fr; } aside, .sources { display:none; } }
+</style>
+</head>
+<body>
+<header><b>Docs Assistant</b><span id="mode"></span></header>
+<div class="layout">
+  <aside>
+    <h3>Documents</h3>
+    <div id="docs"></div>
+    <label class="upload">+ Add PDF, DOCX, MD or TXT<input type="file" id="file" hidden accept=".pdf,.docx,.md,.txt"></label>
+  </aside>
+  <section class="chat">
+    <div class="messages" id="messages">
+      <div class="msg"><div class="bubble">Ask anything about the documents on the left. Every answer links to the passage it came from.</div></div>
+      <div class="msg examples" id="examples"></div>
+    </div>
+    <form id="ask"><input type="text" id="q" placeholder="e.g. How many days of annual leave do I get?" autocomplete="off"><button>Ask</button></form>
+  </section>
+  <section class="sources"><h3>Sources</h3><div id="sources" class="empty">Sources for the latest answer show up here.</div></section>
+</div>
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => s.replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const EXAMPLES = ["Can I carry over unused leave?", "What's the liability limit for a damaged shipment?",
+                  "What credit do we get if on-time delivery drops below target?", "How fast do I have to report a lost laptop?"];
+
+async function loadDocs() {
+  const r = await (await fetch("/api/documents")).json();
+  $("docs").innerHTML = r.documents.map(d =>
+    `<div class="doc"><span>${esc(d.title)}</span><small>${d.chunks} chunks <button title="Remove" onclick="removeDoc(${d.id})">✕</button></small></div>`
+  ).join("") || '<p class="empty">No documents yet.</p>';
+  $("mode").textContent = `retrieval: BM25${r.embeddings ? " + " + r.embeddings + " embeddings" : ""} · answers: ${r.llm === "none" ? "extractive" : r.llm}`;
+}
+
+async function removeDoc(id) { await fetch(`/api/documents/${id}`, {method: "DELETE"}); loadDocs(); }
+
+$("file").onchange = async (e) => {
+  const f = e.target.files[0]; if (!f) return;
+  const fd = new FormData(); fd.append("file", f);
+  const r = await fetch("/api/documents", {method: "POST", body: fd});
+  if (!r.ok) alert((await r.json()).detail);
+  e.target.value = ""; loadDocs();
+};
+
+function add(role, html, cls = "") {
+  const div = document.createElement("div");
+  div.className = `msg ${role} ${cls}`; div.innerHTML = html;
+  $("messages").appendChild(div); $("messages").scrollTop = 1e9; return div;
+}
+
+function showSources(sources) {
+  $("sources").className = sources.length ? "" : "empty";
+  $("sources").innerHTML = sources.map(s =>
+    `<div class="src" id="src-${s.n}"><b>[${s.n}] ${esc(s.citation)}</b><p>${esc(s.text)}</p></div>`).join("") || "No matching passages.";
+}
+
+function focusSource(n) {
+  document.querySelectorAll(".src").forEach(el => el.classList.toggle("active", el.id === `src-${n}`));
+  $(`src-${n}`)?.scrollIntoView({behavior: "smooth", block: "nearest"});
+}
+
+async function ask(question) {
+  $("examples")?.remove();
+  add("user", `<div class="bubble">${esc(question)}</div>`);
+  const pending = add("bot", '<div class="bubble">…</div>');
+  const r = await (await fetch("/api/ask", {method: "POST", headers: {"Content-Type": "application/json"},
+                                         body: JSON.stringify({question})})).json();
+  const body = esc(r.answer).replace(/\[(\d+)\]/g, (_, n) => `<span class="cite" onclick="focusSource(${n})">${n}</span>`);
+  pending.innerHTML = `<div class="bubble">${body}</div><div class="meta">${r.found ? r.sources.length + " source(s) · " + r.mode : "no match"}</div>`;
+  if (!r.found) pending.classList.add("notfound");
+  showSources(r.sources);
+}
+
+$("ask").onsubmit = (e) => { e.preventDefault(); const q = $("q").value.trim(); if (q) { $("q").value = ""; ask(q); } };
+$("examples").innerHTML = "<h3>Try</h3>" + EXAMPLES.map(q => `<button type="button">${q}</button>`).join("");
+$("examples").querySelectorAll("button").forEach(b => b.onclick = () => ask(b.textContent));
+loadDocs();
+</script>
+</body>
+</html>

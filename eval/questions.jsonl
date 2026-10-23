@@ -1,0 +1,30 @@
+{"q": "How many days of annual leave do new employees get?", "doc": "Employee Handbook", "heading": "Annual leave", "expect": ["21"]}
+{"q": "When do I get 30 days of leave?", "doc": "Employee Handbook", "heading": "Annual leave", "expect": ["five years"]}
+{"q": "How many unused leave days can roll over to next year?", "doc": "Employee Handbook", "heading": "Annual leave", "expect": ["5"]}
+{"q": "What are office hours during Ramadan?", "doc": "Employee Handbook", "heading": "Working hours", "expect": ["9:00"]}
+{"q": "How is overtime on a public holiday paid?", "doc": "Employee Handbook", "heading": "Working hours", "expect": ["2"]}
+{"q": "Do I need a doctor's note if I'm off sick for two days?", "doc": "Employee Handbook", "heading": "Sick leave", "expect": ["certificate"]}
+{"q": "How many days a week can I work from home?", "doc": "Employee Handbook", "heading": "Remote work", "expect": ["two days"]}
+{"q": "What's the mileage rate for using my own car?", "doc": "Employee Handbook", "heading": "Expenses", "expect": ["0.75"]}
+{"q": "Do I need a receipt for a SAR 40 taxi?", "doc": "Employee Handbook", "heading": "Expenses", "expect": ["50"]}
+{"q": "What's my yearly training budget?", "doc": "Employee Handbook", "heading": "Training", "expect": ["4,000"]}
+{"q": "A supplier gave me a gift worth SAR 500, what do I do?", "doc": "Employee Handbook", "heading": "Code of conduct", "expect": ["Compliance"]}
+{"q": "How often does tracking update?", "doc": "Customer FAQ", "heading": "Tracking a shipment", "expect": ["30 minutes"]}
+{"q": "How long does standard delivery from Dammam to Riyadh take?", "doc": "Customer FAQ", "heading": "Delivery times", "expect": ["2–4"]}
+{"q": "Who pays import VAT?", "doc": "Customer FAQ", "heading": "Customs and duties", "expect": ["receiver"]}
+{"q": "Can I ship perfume?", "doc": "Customer FAQ", "heading": "Prohibited items", "expect": ["100 ml"]}
+{"q": "What is the maximum compensation for a lost parcel without insurance?", "doc": "Customer FAQ", "heading": "Damaged or lost shipments", "expect": ["2,500"]}
+{"q": "How much does shipment insurance cost?", "doc": "Customer FAQ", "heading": "Damaged or lost shipments", "expect": ["1.5%"]}
+{"q": "Can I change the delivery address after pickup?", "doc": "Customer FAQ", "heading": "Changing or cancelling a booking", "expect": ["SAR 20"]}
+{"q": "How do I open a business account?", "doc": "Customer FAQ", "heading": "Business accounts", "expect": ["50 shipments"]}
+{"q": "What time does customer support open on Saturday?", "doc": "Customer FAQ", "heading": "Contact", "expect": ["10:00"]}
+{"q": "What is the on-time delivery commitment for Enterprise customers?", "doc": "SLA", "heading": "On-time delivery commitment", "expect": ["97%"]}
+{"q": "What is the maximum service credit?", "doc": "SLA", "heading": "Service credits", "expect": ["25%"]}
+{"q": "Do customs delays count against the SLA?", "doc": "SLA", "heading": "Exclusions", "expect": ["customs"]}
+{"q": "How much notice is needed to terminate the agreement?", "doc": "SLA", "heading": "Term and termination", "expect": ["60 days"]}
+{"q": "How often are critical incidents updated?", "doc": "SLA", "heading": "Incident severity", "expect": ["every hour"]}
+{"q": "What is the minimum password length?", "doc": "IT Security Policy", "heading": "Passwords and accounts", "expect": ["12"]}
+{"q": "My laptop was stolen, how quickly do I report it?", "doc": "IT Security Policy", "heading": "Laptops and phones", "expect": ["1 hour"]}
+{"q": "How do I report a phishing email?", "doc": "IT Security Policy", "heading": "Reporting incidents", "expect": ["Report phishing"]}
+{"q": "Can I copy customer lists to a USB drive?", "doc": "IT Security Policy", "heading": "Data handling", "expect": ["prohibited"]}
+{"q": "How long do secure share links last?", "doc": "IT Security Policy", "heading": "Data handling", "expect": ["7 days"]}
